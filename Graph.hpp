@@ -12,15 +12,17 @@ namespace ariel
 {
     class Graph
     {
-//    private:
-//        std::vector<std::vector<int>> adjMatrix;
+   private:
+       std::vector<std::vector<int>> adjMatrix;
     public:
-        std::vector<std::vector<int>> adjMatrix;
+        // memeber functions
         void loadGraph(const std::vector<std::vector<int>>& matrix);
-        std::string printGraph();
-        [[nodiscard]] std::size_t size() const;
-        const std::vector<int>& operator[](std::size_t index) const;  // Const overload for read-only access
+        std::string printGraph() const;
+        std::size_t size() const;
         int edgeCount() const;
+
+        // operators
+        const std::vector<int>& operator[](std::size_t index) const;  // Const overload for read-only access
         Graph operator+(const Graph& g) const;
         Graph& operator+=(const Graph& g);
         Graph& operator+();
@@ -33,6 +35,7 @@ namespace ariel
         Graph operator--(int);
         Graph operator*(const Graph& g) const;
         Graph operator*(int scalar) const;
+        Graph& operator*=(const Graph& g);
         void operator*=(int scalar);
         Graph operator/(int scalar) const;
         void operator/=(int scalar);
@@ -42,8 +45,10 @@ namespace ariel
         bool operator<(const Graph& g) const;
         bool operator>=(const Graph& g) const;
         bool operator<=(const Graph& g) const;
+
+        // friend functions
         friend std::ostream &operator<<(std::ostream &os, const Graph &g);
     };
-}
+} // namespace ariel
 
-#endif
+#endif // GRAPH_H
