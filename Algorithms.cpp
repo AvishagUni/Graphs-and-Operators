@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <string>
 
-
+// Function to check if the graph is directed
 bool ariel::Algorithms::isDirected(const ariel::Graph& g)
 {
     for (std::size_t i = 0; i < g.size(); i++) {
@@ -22,8 +22,13 @@ bool ariel::Algorithms::isDirected(const ariel::Graph& g)
     return false;
 }
 
+// Function to transpose the graph
 ariel::Graph ariel::Algorithms::transpose(ariel::Graph &g)
 {
+    if(isDirected(g) == false)
+    {
+        return g;
+    }
     std::size_t n = g.size();
     std::vector<std::vector<int>> result(n, std::vector<int>(n));
     for (std::size_t i = 0; i < n; i++) {
@@ -31,10 +36,12 @@ ariel::Graph ariel::Algorithms::transpose(ariel::Graph &g)
             result[j][i] = g[i][j];
         }
     }
-    g.loadGraph(result);
-    return g;
+    Graph c;
+    c.loadGraph(result);
+    return c;
 }
 
+// Depth First Search (DFS) function
 void ariel::Algorithms::DFS(std::size_t v, std::vector<bool>& visited, const ariel::Graph& g)
 {
     visited[v] = true;
@@ -45,31 +52,34 @@ void ariel::Algorithms::DFS(std::size_t v, std::vector<bool>& visited, const ari
     }
 }
 
-bool ariel::Algorithms::isConnected(ariel::Graph& g)
-{
-    std::vector<bool> visited(g.size(), false);
-    std::size_t start = 0;  // Assuming there is at least one vertex, adjust as necessary
+// Function to check if the graph is connected
+bool ariel::Algorithms::isConnected(ariel::Graph& g){
+     std::vector<bool> visited(g.size(), false);
+     std::size_t start = 0;  
 
-    DFS(start, visited, g);  // Perform DFS from the start vertex
-    for (bool v : visited) {
-        if (!v) {
-            return false;
-        }
-    }
-
-    if (isDirected(g)) {  // Check if the graph is directed
-        ariel::Graph transposed = transpose(g);
-        std::fill(visited.begin(), visited.end(), false);
-        DFS(start, visited, transposed);  // DFS on the transposed graph
+     DFS(start, visited, g);  // Perform DFS from the start vertex
         for (bool v : visited) {
             if (!v) {
                 return false;
             }
         }
-    }
-    return true;
+        if(!isDirected(g)) {
+            return true;
+        }
+        else {
+            ariel::Graph transposed = transpose(g);
+            std::fill(visited.begin(), visited.end(), false);
+            DFS(start, visited, transposed);  // DFS on the transposed graph
+            for (bool v : visited) {
+                if (!v) {
+                    return false;
+                }
+            }
+            return true;
+        }
 }
 
+// Function to check if the graph is weighted
 bool ariel::Algorithms::isWeighted(ariel::Graph& g)
 {
     std::size_t numVertices = g.size();
@@ -84,6 +94,7 @@ bool ariel::Algorithms::isWeighted(ariel::Graph& g)
     return false;
 }
 
+// Bellman-Ford algorithm for finding shortest path in a weighted graph
 std::string ariel::Algorithms::bellmanFord(ariel::Graph& g, std::size_t src, std::size_t dest)
 {
     std::size_t numVertices = g.size();
@@ -94,8 +105,7 @@ std::string ariel::Algorithms::bellmanFord(ariel::Graph& g, std::size_t src, std
     for (std::size_t i = 0; i < numVertices - 1; i++) {
         for (std::size_t u = 0; u < numVertices; u++) {
             for (std::size_t v = 0; v < numVertices; v++) {
-                if (g[u][v] != std::numeric_limits<int>::max() && g[u][v] != 0 &&
-                    distances[u] != std::numeric_limits<int>::max() &&
+                if (g[u][v] != 0 && distances[u] != std::numeric_limits<int>::max() &&
                     distances[u] + g[u][v] < distances[v]) {
                     distances[v] = distances[u] + g[u][v];
                     predecessor[v] = u;
@@ -104,19 +114,21 @@ std::string ariel::Algorithms::bellmanFord(ariel::Graph& g, std::size_t src, std
         }
     }
 
+    // Check for negative weight cycles
     for (std::size_t u = 0; u < numVertices; u++) {
         for (std::size_t v = 0; v < numVertices; v++) {
-            if (g[u][v] != std::numeric_limits<int>::max() && g[u][v] != 0 &&
-                distances[u] != std::numeric_limits<int>::max() &&
+            if (g[u][v] != 0 && distances[u] != std::numeric_limits<int>::max() &&
                 distances[u] + g[u][v] < distances[v]) {
                 return "-1";
             }
         }
     }
 
+    // If the destination is unreachable, return -1
     if (distances[dest] == std::numeric_limits<int>::max()) {
         return "-1";
     } else {
+        // Reconstruct the path
         std::stack<int> path;
         size_t at = dest;
         while(at != -1)
@@ -139,9 +151,9 @@ std::string ariel::Algorithms::bellmanFord(ariel::Graph& g, std::size_t src, std
 
         return result;  // Return the final constructed string
     }
-    }
+}
 
-
+// Breadth-First Search (BFS) algorithm for finding shortest path in an unweighted graph
 std::string ariel::Algorithms::BFS(ariel::Graph& g, std::size_t src, std::size_t dest)
 {
     std::size_t numVertices = g.size();
@@ -157,18 +169,19 @@ std::string ariel::Algorithms::BFS(ariel::Graph& g, std::size_t src, std::size_t
         queue.pop();
 
         for (std::size_t i = 0; i < numVertices; ++i) {
-            if (g[current][i] && !visited[i]) {
+            if (g[current][i]!=0 && !visited[i]) {
                 visited[i] = true;
                 predecessor[i] = current;
                 queue.push(i);
 
                 if (i == dest) {
+                    // Reconstruct the path
                     std::stack<int> path;
-                    size_t crawl = dest;
-                    path.push(crawl);
-                    while ((size_t)predecessor[crawl] != -1) {
-                        path.push(predecessor[crawl]);
-                        crawl = (size_t)predecessor[crawl];
+                    size_t at = dest;
+                    path.push(at);
+                    while ((size_t)predecessor[at] != -1) {
+                        path.push(predecessor[at]);
+                        at = (size_t)predecessor[at];
                     }
 
                     std::string result;  // Initialize an empty string to store the result
@@ -190,6 +203,7 @@ std::string ariel::Algorithms::BFS(ariel::Graph& g, std::size_t src, std::size_t
     return "-1";
 }
 
+// Function to find the shortest path using either Bellman-Ford or BFS depending on whether the graph is weighted
 std::string ariel::Algorithms::shortestPath(ariel::Graph& g, std::size_t start, std::size_t end) {
     if (isWeighted(g)) {
         return bellmanFord(g, start, end);
@@ -198,6 +212,7 @@ std::string ariel::Algorithms::shortestPath(ariel::Graph& g, std::size_t start, 
     }
 }
 
+// Function to find cycles in the graph using DFS
 bool ariel::Algorithms::findCycle(ariel::Graph& g, std::size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<int> &parent)
 {
     visited[v] = true;
@@ -228,6 +243,7 @@ bool ariel::Algorithms::findCycle(ariel::Graph& g, std::size_t v, std::vector<bo
     return false;
 }
 
+// Function to check if the graph contains any cycle
 bool ariel::Algorithms::isContainsCycle(ariel::Graph& g)
 {
     std::size_t numVertices = g.size();
@@ -237,14 +253,15 @@ bool ariel::Algorithms::isContainsCycle(ariel::Graph& g)
 
     for (std::size_t v = 0; v < numVertices; v++) {
         if (!visited[v]) {
-            if (findCycle(g, v, visited, recStack, parent)) {
-                return true;  // Stop after finding the first cycle
+            if(findCycle(g, v, visited, recStack, parent)) {
+                return true;
             }
         }
     }
     return false;
 }
 
+// Function to check if the graph is bipartite
 std::string ariel::Algorithms::isBipartite(ariel::Graph& g)
 {
     std::size_t numVertices = g.size();
@@ -307,19 +324,23 @@ std::string ariel::Algorithms::isBipartite(ariel::Graph& g)
     return result;
 }
 
+// Function to detect negative weight cycles in a weighted graph
 std::string ariel::Algorithms::negativeCycle(ariel::Graph& g) {
+    if (!isWeighted(g)) {
+        return "The graph is not weighted.";
+    }
+    else{
     std::size_t numVertices = g.size();
     std::vector<int> dist(numVertices, std::numeric_limits<int>::max());
     std::vector<int> pred(numVertices, -1);
 
-    // Start from any vertex as the source
     dist[0] = 0;
 
     // Relax all edges V-1 times
     for (std::size_t step = 0; step < numVertices - 1; ++step) {
         for (std::size_t u = 0; u < numVertices; ++u) {
             for (std::size_t v = 0; v < numVertices; ++v) {
-                if (g[u][v] != std::numeric_limits<int>::max() && dist[u] + g[u][v] < dist[v]) {
+                if (g[u][v] != 0 && dist[u] + g[u][v] < dist[v]) {
                     dist[v] = dist[u] + g[u][v];
                     pred[v] = u;
                 }
@@ -330,24 +351,35 @@ std::string ariel::Algorithms::negativeCycle(ariel::Graph& g) {
     // Check for a negative weight cycle
     for (std::size_t u = 0; u < numVertices; ++u) {
         for (std::size_t v = 0; v < numVertices; ++v) {
-            if (g[u][v] != std::numeric_limits<int>::max() && dist[u] + g[u][v] < dist[v]) {
-//                std::cout << "Negative weight cycle found: ";
+            if (g[u][v] != 0 && dist[u] + g[u][v] < dist[v]) {
                 std::size_t x = v;
                 std::vector<std::size_t> cycle;
-                for (std::size_t i = 0; i < numVertices; i++) x = (size_t)pred[x]; // Get to the cycle start
-                for (std::size_t current = x; ; current = (size_t)pred[current]) {
-                    cycle.push_back(current);
-                    if (current == x && cycle.size() > 1) break;
-                }
+                for (std::size_t i = 0; i < numVertices; ++i) x = (size_t)pred[x]; // Get to the cycle start
+                std::size_t cycle_start = x;
+                do {
+                    cycle.push_back(x);
+                    x = (size_t)pred[x];
+                } while (x != cycle_start);
+
+                cycle.push_back(cycle_start);
                 std::reverse(cycle.begin(), cycle.end());
-                std::string result;
-                for (std::size_t node : cycle) result += std::to_string(node) + " ";
-                result += '\n';
+
+                std::string result = "Negative weight cycle found: ";
+                for(size_t i = 0; i < cycle.size(); i++)
+                {
+                    result += std::to_string(cycle[i]);
+                    if(i != cycle.size()-1)
+                    {
+                        result += "->";
+                    }
+                }
+                result += ".";
                 return result;
             }
         }
     }
     return "No negative weight cycle found.";
+}
 }
 
 
