@@ -1,39 +1,60 @@
-# Ex2cpp
+# Arithmetic Operators for Graphs
 
-Arithmetic Operators
-Addition (+ and +=): 
-Adds the adjacency matrices of two graphs of the same size. Throws an exception if the graphs differ in size.
+This project provides a C++ library for performing arithmetic and comparison operations on graphs represented by adjacency matrices. The library is designed to support intuitive operator overloading for graph manipulation, making it easier to perform operations like addition, subtraction, and comparison between graph objects.
 
-Subtraction (- and -=): 
-Subtracts the adjacency matrix of one graph from another, assuming both graphs are of the same size.
+---
 
-Multiplication (*): 
-Supports both graph-to-graph matrix multiplication and scalar multiplication of a graph's adjacency matrix.
+## 📋 Features
 
-Unary Operators
-Unary Plus (+):
-Returns the graph itself, effectively making no changes to the adjacency matrix.
+### 1. Arithmetic Operators
+- **Addition (+ and +=)**: Adds the adjacency matrices of two graphs of the same size. Throws an exception if the graph sizes differ.
+- **Subtraction (- and -=)**: Subtracts the adjacency matrix of one graph from another, provided both graphs are of the same size.
+- **Multiplication (*)**: Supports both graph-to-graph matrix multiplication and scalar multiplication of a graph's adjacency matrix.
 
-Unary Minus (-):
-Returns a new graph with all values in the adjacency matrix negated.
+### 2. Unary Operators
+- **Unary Plus (+)**: Returns the graph itself without modifying the adjacency matrix.
+- **Unary Minus (-)**: Returns a new graph with all values in the adjacency matrix negated.
 
-Increment and Decrement Operators
-Prefix and Postfix Increment (++): 
-Increments each entry in the graph's adjacency matrix by one.
+### 3. Increment and Decrement Operators
+- **Prefix and Postfix Increment (++)**: Increments each entry in the adjacency matrix by one.
+- **Prefix and Postfix Decrement (--)**: Decrements each entry in the adjacency matrix by one.
 
-Prefix and Postfix Decrement (--):
-Decrements each entry in the graph's adjacency matrix by one.
+### 4. Comparison Operators
+- **Equality (==) and Inequality (!=)**: Compares two graphs for equality or inequality based on their sizes and adjacency matrices.
+- **Relational Operators (> < >= <=)**: Compares graphs based on size, and if sizes are equal, by edge counts.
 
-Comparison Operators
-Equality (==) and Inequality (!=): 
-Compares two graphs for equality or inequality based on their sizes and the contents of their adjacency matrices.
+### 5. Stream Insertion Operator
+- **Stream Insertion (<<)**: Outputs the graph’s adjacency matrix to an output stream (e.g., `std::cout`), formatting it for readability.
 
-Greater Than (>), Less Than (<), Greater Than or Equal To (>=), and Less Than or Equal To (<=):
-Compares graphs based on their sizes and, if sizes are equal, by their edge counts.
+### 6. Exception Handling
+- Operations involving mismatched graph sizes throw a `runtime_error` exception with a descriptive message, ensuring issues are handled gracefully.
 
-Stream Insertion Operator
-Stream Insertion (<<):
-Facilitates the printing of a graph’s adjacency matrix to an output stream, such as std::cout, formatting the output for clarity and readability.
+---
 
-Exception Handling
-Graph operations that involve size mismatches throw a runtime exception with a message indicating the issue. It is recommended to catch these exceptions to handle potential errors gracefully during runtime.
+## 🛠 Implementation Details
+
+- **Graph Addition/Subtraction**: For addition and subtraction, both graphs must be of the same size. Otherwise, a runtime exception is thrown.
+- **Graph Multiplication**: Supports both scalar and matrix multiplication, extending the flexibility for different graph operations.
+- **Unary and Increment/Decrement Operators**: Designed to adjust adjacency matrix values, with separate overloads for prefix and postfix versions.
+- **Comparison Logic**: Compares graphs based on matrix size and, when sizes match, by the count of edges, providing meaningful insights into graph structure.
+- **Stream Output**: Facilitates easy display of graph adjacency matrices for debugging and presentation.
+
+---
+
+## 📂 Project Structure
+
+- **Graph.hpp/cpp**: Defines the graph class with operator overloads for arithmetic, comparison, and unary operations.
+- **Main.cpp**: Contains example usage and test cases demonstrating the library’s functionalities.
+
+---
+
+## 🚀 Getting Started
+
+### Requirements
+- **C++ Compiler**: Ensure support for C++11 or higher.
+
+### Compilation
+To compile the project, run:
+```bash
+g++ -std=c++11 -o graph_operations Main.cpp Graph.cpp
+
